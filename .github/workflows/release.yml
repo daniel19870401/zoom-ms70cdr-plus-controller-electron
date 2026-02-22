@@ -1,0 +1,100 @@
+name: Release Electron App
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (e.g. v0.1.0)
+        required: true
+        default: v0.1.0
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.resolve.outputs.release_tag }}
+    steps:
+      - name: Resolve release tag (workflow_dispatch)
+        id: resolve_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "release_tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve release tag (push)
+        id: resolve_push
+        if: github.event_name == 'push'
+        run: echo "release_tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Export release tag
+        id: resolve
+        run: |
+          TAG="${{ steps.resolve_dispatch.outputs.release_tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="${{ steps.resolve_push.outputs.release_tag }}"
+          fi
+          echo "release_tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create release if missing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.resolve.outputs.release_tag }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --generate-notes --title "$TAG"
+
+  release:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: windows-x64
+            os: windows-latest
+            build_cmd: npm run build:win:x64
+            archive_name: zoom-ms70cdr-plus-controller-windows-x64.zip
+          - id: windows-arm64
+            os: windows-latest
+            build_cmd: npm run build:win:arm64
+            archive_name: zoom-ms70cdr-plus-controller-windows-arm64.zip
+          - id: macos-arm64
+            os: macos-14
+            build_cmd: npm run build:mac:arm64
+            archive_name: zoom-ms70cdr-plus-controller-macos-arm64.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: ${{ matrix.build_cmd }}
+
+      - name: Package dist (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\* -DestinationPath ${{ matrix.archive_name }} -Force
+
+      - name: Package dist (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent dist "${{ matrix.archive_name }}"
+
+      - name: Upload asset to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.create-release.outputs.release_tag }}
+        run: |
+          gh release upload "$TAG" "${{ matrix.archive_name }}" --clobber
