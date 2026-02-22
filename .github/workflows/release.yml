@@ -97,6 +97,7 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent dist "${{ matrix.archive_name }}"
 
       - name: Upload asset to release
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.create-release.outputs.release_tag }}
