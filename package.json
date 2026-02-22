@@ -1,0 +1,58 @@
+{
+  "name": "zoom-ms70cdr-plus-controller",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --dir",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:win:x64": "electron-builder --win nsis zip --x64",
+    "build:win:arm64": "electron-builder --win nsis zip --arm64",
+    "build:mac:arm64": "electron-builder --mac dmg zip --arm64",
+    "build:all": "npm run build:win:x64 && npm run build:win:arm64 && npm run build:mac:arm64"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "osc": "^2.4.5"
+  },
+  "devDependencies": {
+    "electron": "^28.2.4",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.zoom.ms70cdrp.controller",
+    "productName": "Zoom MS-70CDR+ 控制程式",
+    "files": [
+      "main.js",
+      "server.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "app.js",
+      "data/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    }
+  }
+}

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zoom MS-70CDR+ 控制程式</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient"></div>
+    <header class="hero">
+      <div>
+        <h1>Zoom MS-70CDR+ 控制程式</h1>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="panel-header">
+          <h2>連線狀態</h2>
+          <div class="status-group">
+            <span id="sysex-status" class="status">SysEx 未啟用</span>
+            <span id="init-status" class="status subtle">未初始化</span>
+          </div>
+        </div>
+        <div class="panel-grid">
+          <div>
+            <label class="field-label" for="device-id">Device ID (Hex)</label>
+            <input id="device-id" class="field" value="6E" />
+            <small class="hint">如無法控制，請嘗試調整 Device ID。</small>
+          </div>
+          <div>
+            <label class="field-label" for="midi-output">MIDI 輸出</label>
+            <select id="midi-output" class="field"></select>
+          </div>
+          <div>
+            <label class="field-label" for="midi-input">MIDI 輸入</label>
+            <select id="midi-input" class="field"></select>
+          </div>
+          <div class="connect-wrap">
+            <button id="connect" class="primary">連線</button>
+            <button id="refresh" class="ghost">重新整理裝置</button>
+            <button id="init-device" class="ghost">初始化</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>快速指令</h2>
+          <span class="status subtle">常用 SysEx 範例</span>
+        </div>
+        <div class="command-grid" id="quick-commands"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>參數與效果開關</h2>
+          <span class="status subtle">可直接送出參數變更</span>
+        </div>
+        <div class="patch-summary">
+          <div class="patch-title">
+            <div>
+              <p class="field-label">目前 Patch</p>
+              <div class="patch-name" id="patch-name">尚未讀取</div>
+              <div class="patch-meta" id="patch-position">第 - / - 個</div>
+            </div>
+            <button id="sync-patch" class="ghost">同步 Patch 資訊</button>
+          </div>
+          <div class="patch-grid">
+            <div class="patch-card">
+              <span class="field-label">Bank</span>
+              <div id="patch-bank">-</div>
+            </div>
+            <div class="patch-card">
+              <span class="field-label">Program</span>
+              <div id="patch-program">-</div>
+            </div>
+            <div class="patch-card">
+              <span class="field-label">總 Patch 數量</span>
+              <div id="patch-count">-</div>
+            </div>
+            <div class="patch-card">
+              <span class="field-label">Bank 數量</span>
+              <div id="patch-bank-count">-</div>
+            </div>
+            <div class="patch-card">
+              <span class="field-label">每 Bank 數量</span>
+              <div id="patch-per-bank">-</div>
+            </div>
+            <div class="patch-card">
+              <span class="field-label">Patch 長度</span>
+              <div id="patch-length">-</div>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <div class="control-cell">
+            <label class="field-label" for="effect-slot">效果槽位 (1-6)</label>
+            <input id="effect-slot" class="field compact" type="number" min="1" max="6" value="1" />
+          </div>
+          <div class="effect-inline" id="effect-name">效果器：-</div>
+          <div class="control-cell param-cell">
+            <label class="field-label" for="param-number">
+              參數編號 <span class="inline-effect" id="effect-full-name">-</span>
+            </label>
+            <select id="param-number" class="field"></select>
+          </div>
+          <div class="control-cell value-cell">
+            <label class="field-label" for="param-value">參數數值 (0-16383)</label>
+            <input id="param-value" class="field" type="range" min="0" max="16383" value="64" />
+            <div class="range-value" id="param-value-read">64</div>
+          </div>
+          <button id="send-param" class="primary">送出參數</button>
+          <button id="toggle-effect" class="ghost">切換效果啟用/停用</button>
+          <div class="effect-value" id="effect-value">效果狀態：停用 (0)</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>操作紀錄</h2>
+          <span class="status subtle">即時 SysEx 收發</span>
+        </div>
+        <div class="log" id="log"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>提醒：使用 SysEx 可能影響效果器狀態，建議在備份後操作。</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
