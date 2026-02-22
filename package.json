@@ -5,13 +5,13 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --dir",
-    "build:mac": "electron-builder --mac",
-    "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux",
-    "build:win:x64": "electron-builder --win nsis zip --x64",
-    "build:win:arm64": "electron-builder --win nsis zip --arm64",
-    "build:mac:arm64": "electron-builder --mac dmg zip --arm64",
+    "build": "electron-builder --dir --publish never",
+    "build:mac": "electron-builder --mac --publish never",
+    "build:win": "electron-builder --win --publish never",
+    "build:linux": "electron-builder --linux --publish never",
+    "build:win:x64": "electron-builder --win nsis zip --x64 --publish never",
+    "build:win:arm64": "electron-builder --win nsis zip --arm64 --publish never",
+    "build:mac:arm64": "electron-builder --mac dmg zip --arm64 --publish never",
     "build:all": "npm run build:win:x64 && npm run build:win:arm64 && npm run build:mac:arm64"
   },
   "dependencies": {
@@ -53,6 +53,8 @@
       "target": [
         "AppImage"
       ]
-    }
+    },
+    "npmRebuild": false,
+    "nodeGypRebuild": false
   }
 }
