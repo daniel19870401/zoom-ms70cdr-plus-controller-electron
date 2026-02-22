@@ -48,7 +48,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.resolve.outputs.release_tag }}
         run: |
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --generate-notes --title "$TAG"
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --generate-notes --title "$TAG"
 
   release:
     needs: create-release
@@ -101,4 +101,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.create-release.outputs.release_tag }}
         run: |
-          gh release upload "$TAG" "${{ matrix.archive_name }}" --clobber
+          for i in 1 2 3 4 5; do
+            gh release upload "$TAG" "${{ matrix.archive_name }}" --repo "$GITHUB_REPOSITORY" --clobber && exit 0
+            echo "upload retry $i failed; waiting..."
+            sleep 10
+          done
+          exit 1
